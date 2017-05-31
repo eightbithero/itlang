@@ -3,8 +3,9 @@
 $min = (!empty($_POST['min'])) ? $_POST['min'] : 0;
 $max = (!empty($_POST['max'])) ? $_POST['max'] : 1;
 $speed = (!empty($_POST['speed'])) ? $_POST['speed'] : 0;
+$answer = (!empty($_POST['answer'])) ? $_POST['answer'] : false;
 
-$text = (string) mt_rand($min, $max);
+$text = (string) (!empty($_POST['number'])) ? $_POST['number'] : mt_rand($min, $max);
 
 function save_file($text = "1", $speed = 0)
 {
@@ -49,6 +50,16 @@ function save_file($text = "1", $speed = 0)
 
 }
 
+$result = false;
+if ($answer !== false) {
+	if ($answer == $text) {
+		$result = sprintf("Верно %s == %s", $answer, $text);
+	} else {
+		$result = sprintf("Ошибка %s <> %s", $answer, $text);
+	}
+	$answer = false;
+	$text = mt_rand($min, $max);
+}
 
 $path = save_file($text, $speed);
 
@@ -58,8 +69,15 @@ $path = save_file($text, $speed);
 <body>
 
 
-	<form>
+	<form method="POST">
 		<table>
+		<?php if ($result !== false) { ?>
+		<tr><td colspan="2">
+			<?php echo $result; ?>
+		</td></tr>
+		<?php } ?>
+
+
 		<?php if (!empty($path)) { ?>
 		<tr><td colspan="2">
 			<audio controls>
@@ -69,8 +87,12 @@ $path = save_file($text, $speed);
 		</td></tr>
 		<?php } ?>
 
+		<tr><td>min:</td><td><input name="min" value="<?php echo $min; ?>"></td></tr>
+		<tr><td>max:</td><td><input name="max" value="<?php echo $max; ?>"></td></tr>
+		<tr><td>speed:</td><td><input name="speed" value="<?php echo $speed; ?>"></td></tr>
 		<tr><td>answer:</td><td><input name="answer"></td></tr>
-		<tr><td colspan="2"><input type="submit"></td></tr>
+		<tr><td colspan="2"><input type="hidden" name="number" value="<?php echo $text; ?>"></td></tr>
+		<tr><td></td><td><input type="submit"></td></tr>
 		</table>
 	</form>
 
