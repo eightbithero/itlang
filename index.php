@@ -1,5 +1,7 @@
 <?php
 
+define('ROOT_PATH', '/var/www/nb/itlang');
+
 $min = (!empty($_POST['min'])) ? $_POST['min'] : 0;
 $max = (!empty($_POST['max'])) ? $_POST['max'] : 1;
 $speed = (!empty($_POST['speed'])) ? $_POST['speed'] : 0;
@@ -29,10 +31,10 @@ function save_file($text = "1", $speed = 0)
 		'Cache-Control: no-cache'
 	);
 
-	$path = sprintf('/var/www/nb/itlang/cache/%s_%s.mp3', $text, $speed); 
+	$path = sprintf('%s/cache/%s_%s.mp3', ROOT_PATH, $text, $speed); 
 
 	if (file_exists($path)) {
-		return str_replace('/var/www/nb/itlang', '', $path);
+		return str_replace(ROOT_PATH, '', $path);
 	}
 
 	$fp = fopen($path, 'wb+');
@@ -46,16 +48,16 @@ function save_file($text = "1", $speed = 0)
 	curl_exec($ch);
 	fclose($fp);
 
-	return str_replace('/var/www/nb/itlang', '', $path);
+	return str_replace(ROOT_PATH, '', $path);
 
 }
 
 $result = false;
-if ($answer !== false) {
+if ($answer !== false && is_numeric($answer)) {
 	if ($answer == $text) {
-		$result = sprintf("Верно %s == %s", $answer, $text);
+		$result = sprintf("<div class=\"correct\">Верно %s (%s)</div>", $answer, $text);
 	} else {
-		$result = sprintf("Ошибка %s <> %s", $answer, $text);
+		$result = sprintf("<div class=\"wrong\">Ошибка %s (%s)</div>", $answer, $text);
 	}
 	$answer = false;
 	$text = mt_rand($min, $max);
@@ -78,6 +80,15 @@ $path = save_file($text, $speed);
 		<?php } ?>
 
 
+		
+
+		<tr><td>min:</td><td><input name="min" value="<?php echo $min; ?>"></td></tr>
+		<tr><td>max:</td><td><input name="max" value="<?php echo $max; ?>"></td></tr>
+		<tr><td>speed:</td><td><input name="speed" value="<?php echo $speed; ?>"></td></tr>
+		
+		<tr><td colspan="2"><input type="hidden" name="number" value="<?php echo $text; ?>"></td></tr>
+		
+		<tr><td colspan="2"><br /><br /><br /></td></tr>
 		<?php if (!empty($path)) { ?>
 		<tr><td colspan="2">
 			<audio controls>
@@ -86,12 +97,7 @@ $path = save_file($text, $speed);
 			</audio>
 		</td></tr>
 		<?php } ?>
-
-		<tr><td>min:</td><td><input name="min" value="<?php echo $min; ?>"></td></tr>
-		<tr><td>max:</td><td><input name="max" value="<?php echo $max; ?>"></td></tr>
-		<tr><td>speed:</td><td><input name="speed" value="<?php echo $speed; ?>"></td></tr>
 		<tr><td>answer:</td><td><input name="answer"></td></tr>
-		<tr><td colspan="2"><input type="hidden" name="number" value="<?php echo $text; ?>"></td></tr>
 		<tr><td></td><td><input type="submit"></td></tr>
 		</table>
 	</form>
